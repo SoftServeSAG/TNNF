@@ -1,0 +1,62 @@
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# SVN
+.svn/
+
+# PyCharm
+.idea/
+
+# MY
+CORE_refactor/
+dataset/
+test/
+api/
+mnist/
+undeployed/TheanoConv/Data/
+doc/_build
+
+#Excluded example's data directory
+doc/src/HOWTOs/Data/src
+
+#Script to run tests
+runTests.cmd
+
+#Python compiled files
+*.pyc
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# =========================
+# Operating System Files
+# =========================
+
+# OSX
+# =========================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must ends with two \r.
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
