@@ -24,8 +24,8 @@ from fImageWorkerCORE import *
 from pylearn2.sandbox.cuda_convnet.filter_acts import FilterActs
 from pylearn2.sandbox.cuda_convnet.pool import MaxPool
 from theano.sandbox.cuda.basic_ops import gpu_contiguous
-from theano.tensor.signal import downsample
-
+#from theano.tensor.signal import downsample
+from theano.tensor.signal import pool
 
 #---------------------------------------------------------------------#
 # Activation functions
@@ -639,7 +639,8 @@ class LayerCNN(LayerNN):
             raise NotImplementedError('MaxOut activation function for Convolution nets is not implemented yet!')
 
         #Random init for CNN. Without reshape. Init exact kernel shape
-        weights = np.random.standard_normal(size=self.kernel_shape)
+        #weights = np.random.standard_normal(size=self.kernel_shape)
+        weights = np.random.randn(*self.kernel_shape)
 
         #if self.activation != FunctionModel.MaxOut:
         #    #Random init for CNN. Without reshape. Init exact kernel shape
@@ -746,7 +747,8 @@ class LayerCNN(LayerNN):
                 a = pool_op(contiguous_input)
                 a = a.dimshuffle(3, 0, 1, 2)       # c01b to bc01
             else:
-                a = downsample.max_pool_2d(a, (self.pooling_shape, self.pooling_shape), ignore_border=False)
+                #a = downsample.max_pool_2d(a, (self.pooling_shape, self.pooling_shape), ignore_border=False)
+                a = pool.max_pool2D(a, (self.pooling_shape, self.pooling_shape), ignore_border=False)
         else:
             if self.optimized:
                 a = a.dimshuffle(3, 0, 1, 2)       # c01b to bc01
@@ -803,7 +805,8 @@ class LayerCNN(LayerNN):
                 a = pool_op(contiguous_input)
                 a = a.dimshuffle(3, 0, 1, 2)       # c01b to bc01
             else:
-                a = downsample.max_pool_2d(a, (self.pooling_shape, self.pooling_shape), ignore_border=False)
+                #a = downsample.max_pool_2d(a, (self.pooling_shape, self.pooling_shape), ignore_border=False)
+                a = pool.max_pool2D(a, (self.pooling_shape, self.pooling_shape), ignore_border=False)
         else:
             if self.optimized:
                 a = a.dimshuffle(3, 0, 1, 2)       # c01b to bc01
@@ -970,6 +973,7 @@ class TheanoNNclass(object):
         # Update output array
         self.outputArray.append(self.cost)
         self.outputArray.append(XENT)
+        self.outputArray.append(self.varArrayA[-1])
 
         # Derivatives
         # All variables to gradArray list to show to Theano on which variables we need an gradient
@@ -1108,7 +1112,8 @@ class TheanoNNclass(object):
         """
 
         for i in xrange(iteration):
-            error, ent = self.train(X, Y)
+            error, ent, out = self.train(X, Y)
+            self.train_out = out
             if errorCollect:
                 self.errorArray.append(ent)
             if debug:
