@@ -18,7 +18,7 @@ class Graphic(object):
 
 class MultiWeights(object):
 
-    def __init__(self, path='./', name='multi_weights.png'):
+    def __init__(self, path='./', name='multi_weights.png', scale=1):
 
 
         self.pathToSave = path
@@ -40,12 +40,19 @@ class MultiWeights(object):
         self.width = None
         self.height = None
 
+        #Scale factor
+        self.scale = int(scale)
+
     def defineOptimalPicLocation(self, n):
 
         self.width = int(np.ceil(np.sqrt(n) * 0.8))
         self.height = int(np.ceil(np.true_divide(n, self.width)))
 
     def add(self, p):
+
+        #Scaling
+        if self.scale != 1:
+            p = np.kron(p, np.ones((self.scale, self.scale)))
 
         #Add pictures to list
         self.pictures.append(p)
@@ -84,8 +91,3 @@ class MultiWeights(object):
                     break
 
         plate.save(self.pathToSave + self.name)
-
-
-
-
-
