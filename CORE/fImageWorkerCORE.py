@@ -18,7 +18,7 @@ class Graphic(object):
 
 class MultiWeights(object):
 
-    def __init__(self, path='./', name='multi_weights.png', scale=1):
+    def __init__(self, path='./', name='multi_weights.png', scale=1, border=1):
 
 
         self.pathToSave = path
@@ -43,6 +43,9 @@ class MultiWeights(object):
         #Scale factor
         self.scale = int(scale)
 
+        #Border
+        self.border = border
+
     def defineOptimalPicLocation(self, n):
 
         self.width = int(np.ceil(np.sqrt(n) * 0.8))
@@ -61,9 +64,6 @@ class MultiWeights(object):
         #Number of picture
         numOfPictures = len(self.pictures)
 
-        # Border between pictures
-        border = 1
-
         #Picture's size
         picH, picW = self.pictures[-1].shape
 
@@ -72,7 +72,7 @@ class MultiWeights(object):
 
         #Prepare plate for weights
         plate = Image.new('RGBA',
-                          (int(border + self.width * (picW + border)), int(border + self.height * (picH + border))),
+                          (int(self.border + self.width * (picW + self.border)), int(self.border + self.height * (picH + self.border))),
                           (0, 0, 0, 255))
 
         #Plate's size
@@ -83,7 +83,7 @@ class MultiWeights(object):
         for h in xrange(self.height):
             for w in xrange(self.width):
 
-                offset = (border + w * (picW + border), border + h * (picH + border))
+                offset = (self.border + w * (picW + self.border), self.border + h * (picH + self.border))
                 plate.paste(Image.fromarray(DataMutate.Normalizer(self.pictures[count])), offset)
 
                 count += 1
