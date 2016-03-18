@@ -246,8 +246,13 @@ class LayerNN(object):
         :param layerNum: layer's index.
         :return:
         """
-        random = sqrt(6) / sqrt(net.architecture[0].size_in + net.architecture[-1].size_out)
+
         W = dict()
+
+        #Set size_in
+        #For first layer size_in should be provided
+        if layerNum != 0:
+            self.size_in = net.architecture[layerNum - 1].size_out
 
         #In case MaxOut we have to extend weights times pool_size
         if self.activation != FunctionModel.MaxOut:
@@ -255,13 +260,7 @@ class LayerNN(object):
         else:
             weights = np.random.randn(self.size_out * self.pool_size, self.size_in)
 
-        #weights rescale
-        weights_min = np.min(weights)
-        weights = weights - weights_min
-        weights_max = np.max(weights)
-        weights = weights / weights_max
-
-        w = theano.shared((weights * 2 * random - random).astype(theano.config.floatX), name="w%s" % (layerNum + 1))
+        w = theano.shared((weights * 0.01).astype(theano.config.floatX), name="w%s" % (layerNum + 1))
 
         W['w'] = w
 
@@ -397,12 +396,11 @@ class LayerRNN(LayerNN):
         # Check blocks = size_out
         assert self.blocks == self.size_out, 'In case RNN - size_out must be equivalent(!!) to number of blocks.'
 
-        self.peeholes = peeholes
-        if self.peeholes:
-            self.size_in += self.blocks
-
         # Internal NN out size
         self.internalOutSize = self.blocks * 4
+
+        #Peeholes
+        self.peeholes = peeholes
 
         # RNN specific variable
         self.A = None
@@ -423,6 +421,15 @@ class LayerRNN(LayerNN):
         """
         random = 0.1
         W = dict()
+
+        #Set size_in
+        #For first layer size_in should be provided
+        if layerNum != 0:
+            self.size_in = net.architecture[layerNum - 1].size_out
+
+        #If peeholes
+        if self.peeholes:
+            self.size_in += self.blocks
 
         # W
         weights = np.random.randn(self.internalOutSize, self.size_in)
@@ -631,30 +638,25 @@ class LayerCNN(LayerNN):
         :param net: TheanoNNclass object
         :param layerNum: layer's index.
         """
-        random = sqrt(6) / sqrt(self.kernel_shape[-1] * self.kernel_shape[-2] * self.kernel_shape[0])
+
         W = dict()
+
+        #Set size_in
+        #For first layer size_in should be provided
+        if layerNum != 0:
+            self.size_in = net.architecture[layerNum - 1].size_out
+
+        #Set size_out
+        sX = np.sqrt(self.size_in / self.kernel_shape[1])
+        self.size_out = np.int32(np.square(np.ceil(np.true_divide(sX - self.kernel_shape[-1] + 1, self.stride))) * self.kernel_shape[0])
 
         #MAXOUT will be implemented later
         if self.activation == FunctionModel.MaxOut:
             raise NotImplementedError('MaxOut activation function for Convolution nets is not implemented yet!')
 
         #Random init for CNN. Without reshape. Init exact kernel shape
-        #weights = np.random.standard_normal(size=self.kernel_shape)
         weights = np.random.randn(*self.kernel_shape)
-
-        #if self.activation != FunctionModel.MaxOut:
-        #    #Random init for CNN. Without reshape. Init exact kernel shape
-        #    weights = np.random.standard_normal(size=self.kernel_shape)
-        #else:
-        #    weights = np.random.standard_normal(size=(self.kernel_shape[0] * self.pool_size, self.kernel_shape[1], self.kernel_shape[2], self.kernel_shape[3]))
-
-        #weights rescale
-        weights_min = np.min(weights)
-        weights = weights - weights_min
-        weights_max = np.max(weights)
-        weights = weights / weights_max
-
-        w = theano.shared((weights * 2 * random - random).astype(theano.config.floatX), name="w%s" % (layerNum + 1))
+        w = theano.shared((weights * 0.01).astype(theano.config.floatX), name="w%s" % (layerNum + 1))
 
         W['w'] = w
 
@@ -1258,6 +1260,31 @@ class TheanoNNclass(object):
 
         self.paramSetter(res)
         return self
+
+    def getArchitecture(self):
+        return self.architecture
+
+    def printArchitecture(self):
+        print '\n----------------\n'
+        print '## Net architecture ##\n'
+        for i in xrange(self.lastArrayNum):
+            l = self.architecture[i]
+
+            #Type and size
+            if isinstance(l, LayerCNN):
+                t = 'CNN\t'
+                s = l.kernel_shape
+            elif isinstance(l, LayerRNN):
+                t = 'LSTM\t'
+                s = (l.size_in, l.size_out)
+            elif isinstance(l, LayerNN):
+                t = 'FeedForward'
+                s = (l.size_in, l.size_out)
+
+            print 'Layer #' + str(i) + ', ' + t + '\t: ' + str(s)
+
+        print '\n----------------\n'
+
 
 
 #---------------------------------------------------------------------#
