@@ -51,21 +51,18 @@ class MultiWeights(object):
         self.width = int(np.ceil(np.sqrt(n) * 0.8))
         self.height = int(np.ceil(np.true_divide(n, self.width)))
 
-    def add(self, p):
-
-        #Scaling
-        if self.scale != 1:
-            p = np.kron(p, np.ones((self.scale, self.scale)))
-
-        #Add pictures to list
-        self.pictures.append(p)
-
     def draw(self):
         #Number of picture
         numOfPictures = len(self.pictures)
 
         #Picture's size
-        picH, picW = self.pictures[-1].shape
+        #Check RGB
+        if len(self.pictures[-1].shape) == 2:
+            picH, picW = self.pictures[-1].shape
+        elif len(self.pictures[-1].shape) == 3:
+            picH, picW, colors = self.pictures[-1].shape
+        else:
+            raise NotImplementedError('Unknown number of channels (colors): ' + str(len(self.pictures[-1].shape)))
 
         #Define pictures location
         self.defineOptimalPicLocation(numOfPictures)
@@ -84,10 +81,24 @@ class MultiWeights(object):
             for w in xrange(self.width):
 
                 offset = (self.border + w * (picW + self.border), self.border + h * (picH + self.border))
-                plate.paste(Image.fromarray(DataMutate.Normalizer(self.pictures[count])), offset)
+                plate.paste(Image.fromarray(DataMutate.Normalizer(self.pictures[count]).astype('uint8')), offset)
 
                 count += 1
                 if count == numOfPictures:
                     break
 
         plate.save(self.pathToSave + self.name)
+
+    def add(self, p):
+
+        #Scaling
+        if self.scale != 1:
+            if len(p.shape) == 2:
+                p = np.kron(p, np.ones((self.scale, self.scale)))
+            elif len(p.shape) == 3:
+                p = np.kron(p, np.ones((self.scale, self.scale, 1)))
+            else:
+                raise NotImplementedError('Unknown number of channels (colors): ' + str(len(p.shape)))
+
+        #Add pictures to list
+        self.pictures.append(p)

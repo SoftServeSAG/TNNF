@@ -223,12 +223,15 @@ class DataMutate(object):
         return ia
 
     @staticmethod
-    def Normalizer(ia):  # Mapped to 0-255
-        min = np.min(ia)
-        max = np.max(ia)
-        koeff = 255 / (max - min)
-        ia = (ia - min) * koeff
-        return ia
+    def Normalizer(arr, upper=255):  # Mapped to 0-255
+        mi = arr.min()
+        arr = arr - mi
+        ma = arr.max()
+
+        koef = np.true_divide(upper, ma)
+        arr = arr * koef
+
+        return arr
 
     @staticmethod
     def PCAW(X, epsilon=0.01):  # PCA Whitening. One picture for now
