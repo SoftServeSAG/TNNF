@@ -1,6 +1,7 @@
 # ---------------------------------------------------------------------#
 from matplotlib.pylab import plot, title, xlabel, ylabel, legend, grid, margins, savefig, close, any
 import numpy as np
+import matplotlib.colors as colors
 #---------------------------------------------------------------------#
 
 
@@ -14,7 +15,9 @@ class Graph(object):
                 **kwargs):
 
         #Colors
-        Colors = ['c', 'm', 'y', 'k']
+        Colors = ['c', 'm', 'y', 'k', colors.cnames['darkseagreen'], colors.cnames['darkslateblue'], colors.cnames['darkslategray'],
+                  colors.cnames['darkturquoise'], colors.cnames['darkviolet'], colors.cnames['deeppink'],
+                  colors.cnames['deepskyblue'], colors.cnames['dimgray']]
         color_idx = 0
 
         #Add declared dict
@@ -56,7 +59,7 @@ class Graph(object):
             elif k == 'accuracy':
                 plot(stepsDict[k], validDicts[k], 'b.', markeredgewidth=0, label='Accuracy', zorder=2)
             else:
-                plot(stepsDict[k], validDicts[k], str(Colors[color_idx] + '.'), markeredgewidth=0, label=k, zorder=1)
+                plot(stepsDict[k], validDicts[k], Colors[color_idx], marker='.', ls='', markeredgewidth=0, label=k, zorder=1)
                 color_idx += 1
 
         #Titles
