@@ -832,7 +832,8 @@ class OptionsStore(object):
                  mmsmin=1e-10,
                  rProp=False,
                  minibatch_size=1,
-                 CV_size=1):
+                 CV_size=1,
+                 predictAllLayersOut=False):
         """
         Container for global network's options.
 
@@ -842,6 +843,7 @@ class OptionsStore(object):
         :param rProp: False or float, use only for **full batch**. If yes - rate to increase next weight's change.
         :param minibatch_size: int, size of batch you use. Can't be changed compiling.
         :param CV_size: int, size of cross validation set. Can't be changed compiling.
+        :param predictAllLayersOut: whether output list should contains only last layer activations or all of them.
         :return: OptionStore object.
         """
         self.learnStep = learnStep  # Learning step for gradient descent
@@ -850,6 +852,7 @@ class OptionsStore(object):
         self.rProp = rProp  # For full batch only
         self.minibatch_size = minibatch_size
         self.CV_size = CV_size
+        self.predictAllLayersOut = predictAllLayersOut
 
     def Printer(self):
         """
@@ -1128,7 +1131,7 @@ class TheanoNNclass(object):
             self.architecture[i].compilePredictActivation(self, i)
 
         self.predict = theano.function(inputs=[self.x],
-                                       outputs=self.varArrayAc[-1],
+                                       outputs=self.varArrayAc if self.options.predictAllLayersOut else self.varArrayAc[-1],
                                        updates=self.updatesArrayPredict,
                                        allow_input_downcast=True)
         return self

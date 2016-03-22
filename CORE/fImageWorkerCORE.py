@@ -55,6 +55,11 @@ class MultiWeights(object):
         #Number of picture
         numOfPictures = len(self.pictures)
 
+        #Check for pictures
+        if numOfPictures == 0:
+            print 'WARNING: There is nothing to draw there...'
+            return
+
         #Picture's size
         #Check RGB
         if len(self.pictures[-1].shape) == 2:
