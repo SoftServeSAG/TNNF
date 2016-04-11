@@ -12,6 +12,8 @@ class Graph(object):
                 accuracy=False,
                 name='./GraphBuilder_default_name.png',
                 legend_on=True,
+                Xlabel='epochs',
+                Ylabel='Error',
                 **kwargs):
 
         #Colors
@@ -64,8 +66,8 @@ class Graph(object):
 
         #Titles
         title('Error vs epochs', fontsize=12)
-        xlabel('epochs', fontsize=10)
-        ylabel('Error', fontsize=10)
+        xlabel(Xlabel, fontsize=10)
+        ylabel(Ylabel, fontsize=10)
         if legend_on:
             legend(loc='best', fontsize=10, numpoints=3, shadow=True, fancybox=True)
 

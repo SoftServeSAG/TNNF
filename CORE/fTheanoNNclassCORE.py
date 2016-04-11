@@ -369,6 +369,7 @@ class LayerNN(object):
         :return:
         """
         penalty = T.sum(net.varWeights[layerNum]['w'] ** 2) * self.weightDecay / 2
+                  #+ T.sum(net.varWeights[layerNum]['b'] ** 2) * self.weightDecay / 2
         net.regularize.append(penalty)
 
 
