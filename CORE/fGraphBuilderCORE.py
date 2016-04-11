@@ -14,6 +14,7 @@ class Graph(object):
                 legend_on=True,
                 Xlabel='epochs',
                 Ylabel='Error',
+                Title='Error vs epochs',
                 **kwargs):
 
         #Colors
@@ -61,11 +62,11 @@ class Graph(object):
             elif k == 'accuracy':
                 plot(stepsDict[k], validDicts[k], 'b.', markeredgewidth=0, label='Accuracy', zorder=2)
             else:
-                plot(stepsDict[k], validDicts[k], Colors[color_idx], marker='.', ls='', markeredgewidth=0, label=k, zorder=1)
+                plot(stepsDict[k], validDicts[k], Colors[color_idx], marker='.', ls='-', markeredgewidth=0, label=k, zorder=1)
                 color_idx += 1
 
         #Titles
-        title('Error vs epochs', fontsize=12)
+        title(Title, fontsize=12)
         xlabel(Xlabel, fontsize=10)
         ylabel(Ylabel, fontsize=10)
         if legend_on:
