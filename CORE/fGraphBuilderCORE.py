@@ -75,7 +75,7 @@ class Graph(object):
         #Grid
         grid()
         margins(0.04)
-        savefig(name, dpi=120)
+        savefig(name, dpi=120, bbox_inches='tight')
         close()
 
 
