@@ -591,7 +591,7 @@ class LayerRNN(LayerNN):
 
 class LayerCNN(LayerNN):
     def __init__(self, kernel_shape=None, stride=1, pooling=False, pooling_shape=None, optimized=False,
-                 validConvolution=True, **kwargs):
+                 validConvolution=True, inputDataAsIs=False, **kwargs):
         """
         Layer class that extends standard LayerNN class and implements CNN (convolution, **not fully connected**) type of network.
         The most useful type of network to apply for image processing beyond others NN algorithms.
@@ -608,6 +608,7 @@ class LayerCNN(LayerNN):
         :param optimized: boolean, whether to use highly optimized version or not. In case TRUE - it is able to run only on GPU.
         :param validConvolution: whether to use valid (convolve fully overlapped parts) or full (convolve partially overlapped parts) convolution.
         :param kwargs: other parameters are inherited from LayerNN.__init__()
+        :param inputDataAsIs: valid for input layer only. Force TNNF do not try to reshape input data but take it As Is instead
 
         .. note::
            In case :code:`optimized = True` there are number of restrictions you have take into account:
@@ -632,6 +633,7 @@ class LayerCNN(LayerNN):
         self.pooling_shape = pooling_shape      # stride for pooling
         self.optimized = optimized
         self.validConvolution = validConvolution
+        self.inputDataAsIs = inputDataAsIs
 
 
     def compileWeight(self, net, layerNum):
@@ -710,11 +712,15 @@ class LayerCNN(LayerNN):
     def compileActivation(self, net, layerNum):
         variable = net.x if layerNum == 0 else net.varArrayA[layerNum - 1]
 
-        #Calc shapes for reshape function on-the-fly. Assume we have square images as input.
-        sX = T.cast(T.sqrt(T.shape(variable)[0] / self.kernel_shape[1]), 'int16')
+        # Data reshape
+        if layerNum == 0 and self.inputDataAsIs:
+            Xr = variable   # should be bc01
+        else:
+            #Calc shapes for reshape function on-the-fly. Assume we have square images as input.
+            sX = T.cast(T.sqrt(T.shape(variable)[0] / self.kernel_shape[1]), 'int16')
 
-        #Converts input from 2 to 4 dimensions
-        Xr = T.reshape(variable.T, (T.shape(variable)[1], self.kernel_shape[1], sX, sX))
+            #Converts input from 2 to 4 dimensions
+            Xr = T.reshape(variable.T, (T.shape(variable)[1], self.kernel_shape[1], sX, sX))
 
         if self.optimized:
             out_size = T.cast(
@@ -769,11 +775,15 @@ class LayerCNN(LayerNN):
     def compilePredictActivation(self, net, layerNum):
         variable = net.x if layerNum == 0 else net.varArrayAc[layerNum - 1]
 
-        #Calc shapes for reshape function on-the-fly. Assume we have square images as input.
-        sX = T.cast(T.sqrt(T.shape(variable)[0] / self.kernel_shape[1]), 'int32')
+        # Data reshape
+        if layerNum == 0 and self.inputDataAsIs:
+            Xr = variable   # should be bc01
+        else:
+            #Calc shapes for reshape function on-the-fly. Assume we have square images as input.
+            sX = T.cast(T.sqrt(T.shape(variable)[0] / self.kernel_shape[1]), 'int32')
 
-        #Converts input from 2 to 4 dimensions
-        Xr = T.reshape(variable.T, (T.shape(variable)[1], self.kernel_shape[1], sX, sX))
+            #Converts input from 2 to 4 dimensions
+            Xr = T.reshape(variable.T, (T.shape(variable)[1], self.kernel_shape[1], sX, sX))
 
         if self.optimized:
             out_size = T.cast(
@@ -892,7 +902,10 @@ class TheanoNNclass(object):
         self.varWeights = []
 
         # Variables
-        self.x = T.matrix("x")
+        if self.architecture[0].inputDataAsIs:
+            self.x = T.tensor4("x")
+        else:
+            self.x = T.matrix("x")
         self.y = T.matrix("y")
 
         # Weights
