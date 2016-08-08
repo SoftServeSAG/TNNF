@@ -58,7 +58,7 @@ class Graph(object):
             if k == 'error':
                 plot(stepsDict[k], validDicts[k], 'r,', markeredgewidth=0, label='Error', zorder=0)
             elif k == 'cv':
-                plot(stepsDict[k], validDicts[k], 'g.', markeredgewidth=0, label='CV', zorder=3)
+                plot(stepsDict[k], validDicts[k], 'g.', markersize=4, markeredgewidth=0, label='CV', zorder=3)
             elif k == 'accuracy':
                 plot(stepsDict[k], validDicts[k], 'b.', markeredgewidth=0, label='Accuracy', zorder=2)
             else:
