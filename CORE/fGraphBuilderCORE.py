@@ -1,8 +1,10 @@
 # ---------------------------------------------------------------------#
+import matplotlib
+matplotlib.use('Qt4Agg')
 from matplotlib.pylab import plot, title, xlabel, ylabel, legend, grid, margins, savefig, close, any
 import numpy as np
 import matplotlib.colors as colors
-#---------------------------------------------------------------------#
+# ---------------------------------------------------------------------#
 
 
 class Graph(object):
